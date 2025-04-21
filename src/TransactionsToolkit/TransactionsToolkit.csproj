@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>TransactionsToolkit</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>YourName</Authors>
+    <Description>Helpers for building/signing transactions, OP_RETURN, dust limits.</Description>
+    <PackageTags>bitcoin;transaction;op_return;dust</PackageTags>
+    <RepositoryUrl>https://github.com/yourname/TransactionsToolkit</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NBitcoin" Version="8.0.8" />
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>
