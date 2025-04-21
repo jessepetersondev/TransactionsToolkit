@@ -24,12 +24,6 @@ pipeline {
             --logger "trx;LogFileName=test_results.trx"
         """
       }
-      post {
-        always {
-          // Publish the TRX from the workspace root
-          //junit '**\\test_results.trx'
-        }
-      }
     }
   }
 
