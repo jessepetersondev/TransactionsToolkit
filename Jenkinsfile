@@ -1,23 +1,18 @@
+// Restore dependencies and build the solution
 stage('Restore & Build') {
-  steps {
     bat 'dotnet restore'
     bat 'dotnet build --no-restore --configuration Release'
-  }
 }
 
+// Run tests and publish results
 stage('Test') {
-  steps {
-    // Run tests and emit TRX
+    // Execute xUnit tests, output TRX
     bat '''
-      dotnet test "tests\\TransactionsToolkit.Tests\\TransactionsToolkit.Tests.csproj" ^
-        --no-build --configuration Release ^
-        --logger "trx;LogFileName=test_results.trx"
+        dotnet test "tests\\TransactionsToolkit.Tests\\TransactionsToolkit.Tests.csproj" ^
+            --no-build --configuration Release ^
+            --logger "trx;LogFileName=test_results.trx"
     '''
-  }
-  post {
-    always {
-      // Publish TRX via MSTest plugin
-      step([$class: 'MSTestPublisher', testResultsFile: '**\\test_results.trx'])
-    }
-  }
+
+    // Publish the TRX to Jenkins via MSTest publisher (plugin required)
+    step([$class: 'MSTestPublisher', testResultsFile: '**\\test_results.trx'])
 }
