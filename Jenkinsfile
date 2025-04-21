@@ -1,5 +1,5 @@
 pipeline {
-  agent any    // or: agent { label 'windows' } if you have a Windows‑only node
+  agent any   // or agent { label 'windows' }
 
   stages {
     stage('Checkout') {
@@ -17,17 +17,17 @@ pipeline {
 
     stage('Test') {
       steps {
-        // Run tests, output a TRX file
-        bat '''
-          dotnet test tests\\TransactionsToolkit.Tests\\ `
-            --no-build --configuration Release `
+        // Run exactly one project and no stray backticks
+        bat """
+          dotnet test "tests\\TransactionsToolkit.Tests\\TransactionsToolkit.Tests.csproj" ^
+            --no-build --configuration Release ^
             --logger "trx;LogFileName=test_results.trx"
-        '''
+        """
       }
       post {
         always {
-          // Publish the TRX test report to the MSTest plugin
-          mstest testResultsFile: '**\\test_results.trx'
+          // Publish the TRX from the workspace root
+          junit '**\\test_results.trx'
         }
       }
     }
@@ -35,10 +35,10 @@ pipeline {
 
   post {
     success {
-      echo '🟢 All builds & tests passed!'
+      echo '🟢 Build & tests passed!'
     }
     failure {
-      echo '🔴 Build or tests failed — check the console output.'
+      echo '🔴 Build or tests failed—please check the console output.'
     }
   }
 }
