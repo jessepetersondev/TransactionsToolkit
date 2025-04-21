@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent any    // or: agent { label 'windows' } if you have a Windows‑only node
 
   stages {
     stage('Checkout') {
@@ -10,23 +10,24 @@ pipeline {
 
     stage('Restore & Build') {
       steps {
-        sh 'dotnet restore'
-        sh 'dotnet build --no-restore --configuration Release'
+        bat 'dotnet restore'
+        bat 'dotnet build --no-restore --configuration Release'
       }
     }
 
     stage('Test') {
       steps {
-        sh '''
-          dotnet test tests/TransactionsToolkit.Tests/ \
-            --no-build --configuration Release \
+        // Run tests, output a TRX file
+        bat '''
+          dotnet test tests\\TransactionsToolkit.Tests\\ `
+            --no-build --configuration Release `
             --logger "trx;LogFileName=test_results.trx"
         '''
       }
       post {
         always {
-          // Publish test report in Jenkins
-          mstest testResultsFile: '**/test_results.trx'
+          // Publish the TRX test report to the MSTest plugin
+          mstest testResultsFile: '**\\test_results.trx'
         }
       }
     }
@@ -34,10 +35,10 @@ pipeline {
 
   post {
     success {
-      echo '🟢 Build & tests passed!'
+      echo '🟢 All builds & tests passed!'
     }
     failure {
-      echo '🔴 Build or tests failed—see console output.'
+      echo '🔴 Build or tests failed — check the console output.'
     }
   }
 }
