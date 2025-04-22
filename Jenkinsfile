@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent any   // or agent { label 'windows' }
 
   stages {
     stage('Checkout') {
@@ -15,48 +15,21 @@ pipeline {
       }
     }
 
-    stage('Test with Coverage') {
+    stage('Test') {
       steps {
-        bat '''
+        // Run exactly one project and no stray backticks
+        bat """
           dotnet test "tests\\TransactionsToolkit.Tests\\TransactionsToolkit.Tests.csproj" ^
             --no-build --configuration Release ^
-            --collect:"XPlat Code Coverage" ^
-            --results-directory "TestResults" ^
             --logger "trx;LogFileName=test_results.trx"
-        '''
-      }
-    }
-
-    stage('Generate Coverage Report') {
-      steps {
-        bat '''
-          dotnet tool install --global dotnet-reportgenerator-globaltool || exit 0
-          set PATH=%PATH%;%USERPROFILE%\\.dotnet\\tools
-          reportgenerator ^
-            -reports:"**\\coverage.cobertura.xml" ^
-            -targetdir:"coverage-report" ^
-            -reporttypes:HtmlSummary;TextSummary
-        '''
-      }
-    }
-
-    stage('Archive Artifacts') {
-      steps {
-        junit 'TestResults\\*.trx'
-        archiveArtifacts artifacts: 'coverage-report\\**', allowEmptyArchive: true
-      }
-    }
-
-    stage('Print Coverage Summary') {
-      steps {
-        bat 'type coverage-report\\Summary.txt || echo No coverage summary found.'
+        """
       }
     }
   }
 
   post {
     success {
-      echo '🟢 Build, tests, and coverage succeeded!'
+      echo '🟢 Build & tests passed!'
     }
     failure {
       echo '🔴 Build or tests failed—please check the console output.'
